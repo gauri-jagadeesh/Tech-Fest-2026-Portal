@@ -361,14 +361,14 @@ git commit -m "Initial commit: Complete Tech-Fest 2026 MERN Stack Portal"
 git branch -M main
 
 # Add your GitHub repository remote
-git remote add origin https://github.com/YOUR_GITHUB_USERNAME/Techfest-deployment.git
+git remote add origin https://github.com/gauri-jagadeesh/Tech-Fest-2026-Portal.git
 git push -u origin main
 ```
 
 ### 2. Render Backend API Deployment
 1. Log in to [Render](https://render.com).
 2. Click **New + → Web Service**.
-3. Connect your GitHub repository `Techfest-deployment`.
+3. Connect your GitHub repository `Tech-Fest-2026-Portal`.
 4. Configure service settings:
    - **Name**: `techfest-2026-portal-api`
    - **Region**: Oregon (US West) or closest region
@@ -445,9 +445,9 @@ Use this checklist for project evaluation and viva demonstration:
   - [x] Netlify configuration with `_redirects` and `netlify.toml`
   - [x] Render configuration with `render.yaml`
   - [x] Root `.gitignore` correctly ignoring secrets while preserving `.env.example`
-- [ ] **Live GitHub Repository URL**: `https://github.com/BindhyaPS/Techfest-deployment.git` (or your personal repo)
+- [x] **Live GitHub Repository URL**: [https://github.com/gauri-jagadeesh/Tech-Fest-2026-Portal](https://github.com/gauri-jagadeesh/Tech-Fest-2026-Portal)
 - [ ] **Live Render API URL**: `https://techfest-2026-portal-api.onrender.com/api/health`
-- [ ] **Live Netlify Frontend URL**: `https://techfest2026.netlify.app`
+- [ ] **Live Netlify Frontend URL**: `https://techfest-2026.netlify.app`
 
 ---
 
