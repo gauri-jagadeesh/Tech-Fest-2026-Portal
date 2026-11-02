@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "seed": "node utils/seed.js"
+    "seed": "node utils/seed.js",
+    "test": "node utils/testSuite.js"
   },
   "keywords": [
     "mern",
@@ -24,5 +25,8 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.2"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^11.3.0"
   }
 }

@@ -236,7 +236,62 @@ const sampleEvents = [
   },
 ];
 
-const seedDatabase = async () => {
+export const seedData = async () => {
+  // Clear existing data
+  await User.deleteMany({});
+  await Event.deleteMany({});
+  await Registration.deleteMany({});
+  console.log('🧹 Cleared existing database records.');
+
+  // Create Admin User
+  const admin = await User.create({
+    name: 'Festival Administrator',
+    email: 'admin@techfest2026.com',
+    password: 'Admin@2026',
+    role: 'admin',
+    college: 'Tech Fest Central Organizing Committee',
+    phone: '+91 98765 00001',
+  });
+  console.log(`👤 Admin created: ${admin.email} (Password: Admin@2026)`);
+
+  // Create Student User
+  const student = await User.create({
+    name: 'Alex Johnson',
+    email: 'student@techfest2026.com',
+    password: 'Student@2026',
+    role: 'student',
+    college: 'National Institute of Technology',
+    phone: '+91 98765 00002',
+  });
+  console.log(`🎓 Student created: ${student.email} (Password: Student@2026)`);
+
+  // Create Sample Events
+  const createdEvents = await Event.insertMany(sampleEvents);
+  console.log(`🎉 Seeded ${createdEvents.length} Tech Fest events.`);
+
+  // Create a sample registration for the student
+  const sampleEvent = createdEvents[0];
+  const registration = await Registration.create({
+    user: student._id,
+    event: sampleEvent._id,
+    teamName: 'CyberKnights',
+    teamMembers: [
+      { name: 'Alex Johnson', email: 'student@techfest2026.com', college: 'National Institute of Technology' },
+      { name: 'Elena Rostova', email: 'elena@nit.edu', college: 'National Institute of Technology' },
+    ],
+    ticketCode: 'TF26-HACK-77A9',
+    status: 'Confirmed',
+    notes: 'Hardware lab access requested',
+  });
+
+  sampleEvent.registeredCount = 1;
+  await sampleEvent.save();
+  console.log(`🎟️ Created sample registration with Ticket Code: ${registration.ticketCode}`);
+
+  return { admin, student, createdEvents, registration };
+};
+
+const runCliSeed = async () => {
   const uri = process.env.MONGO_URI;
 
   if (!uri || uri === 'your_mongodb_atlas_connection_string') {
@@ -246,66 +301,29 @@ const seedDatabase = async () => {
   }
 
   try {
-    await mongoose.connect(uri);
+    await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 });
     console.log(`✅ Connected to MongoDB Atlas: ${mongoose.connection.host}`);
-
-    // Clear existing data
-    await User.deleteMany({});
-    await Event.deleteMany({});
-    await Registration.deleteMany({});
-    console.log('🧹 Cleared existing database records.');
-
-    // Create Admin User
-    const admin = await User.create({
-      name: 'Festival Administrator',
-      email: 'admin@techfest2026.com',
-      password: 'Admin@2026',
-      role: 'admin',
-      college: 'Tech Fest Central Organizing Committee',
-      phone: '+91 98765 00001',
-    });
-    console.log(`👤 Admin created: ${admin.email} (Password: Admin@2026)`);
-
-    // Create Student User
-    const student = await User.create({
-      name: 'Alex Johnson',
-      email: 'student@techfest2026.com',
-      password: 'Student@2026',
-      role: 'student',
-      college: 'National Institute of Technology',
-      phone: '+91 98765 00002',
-    });
-    console.log(`🎓 Student created: ${student.email} (Password: Student@2026)`);
-
-    // Create Sample Events
-    const createdEvents = await Event.insertMany(sampleEvents);
-    console.log(`🎉 Seeded ${createdEvents.length} Tech Fest events.`);
-
-    // Create a sample registration for the student
-    const sampleEvent = createdEvents[0];
-    const registration = await Registration.create({
-      user: student._id,
-      event: sampleEvent._id,
-      teamName: 'CyberKnights',
-      teamMembers: [
-        { name: 'Alex Johnson', email: 'student@techfest2026.com', college: 'National Institute of Technology' },
-        { name: 'Elena Rostova', email: 'elena@nit.edu', college: 'National Institute of Technology' },
-      ],
-      ticketCode: 'TF26-HACK-77A9',
-      status: 'Confirmed',
-      notes: 'Hardware lab access requested',
-    });
-
-    sampleEvent.registeredCount = 1;
-    await sampleEvent.save();
-    console.log(`🎟️ Created sample registration with Ticket Code: ${registration.ticketCode}`);
-
+    await seedData();
     console.log('\n✨ Database seeding completed successfully!\n');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Seeding failed:', error);
+    console.error('❌ Seeding failed:', error.message);
+    if (error.message.includes('Authentication failed') || error.message.includes('bad auth')) {
+      console.error('\n⚠️  MongoDB Atlas Authentication Failed:');
+      console.error('   The Database User or Password in server/.env does not match Atlas.');
+      console.error('   1. Log into https://cloud.mongodb.com');
+      console.error('   2. Navigate to Security -> Database Access');
+      console.error('   3. Verify user name exists or click "Add New Database User"');
+      console.error('   4. Set password and click "Add User" (or "Update User")');
+      console.error('   5. Verify Security -> Network Access has 0.0.0.0/0 (or your public IP)\n');
+    }
     process.exit(1);
   }
 };
 
-seedDatabase();
+// If run directly from terminal
+if (import.meta.url === `file://${process.argv[1]}`) {
+  runCliSeed();
+}
+
+export { sampleEvents };
